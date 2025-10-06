@@ -1,9 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config'; // Importa este módulo primero
+import { SupabaseModule } from './supabase/supabase.module';
+import { AuthModule } from './auth/auth.module'; // Lo crearemos en el siguiente paso
+
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // Carga el .env globalmente
+    SupabaseModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
