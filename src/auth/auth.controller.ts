@@ -3,8 +3,8 @@ import { AuthService, ProfileData } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
-@Controller('auth') // La ruta base será /auth
-@UsePipes(new ValidationPipe({ transform: true })) // Para validar los DTOs
+@Controller('auth') 
+@UsePipes(new ValidationPipe({ transform: true }))
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

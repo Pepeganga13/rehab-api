@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config'; // Importa este módulo primero
+import { ConfigModule } from '@nestjs/config'; 
 import { SupabaseModule } from './supabase/supabase.module';
-import { AuthModule } from './auth/auth.module'; // Lo crearemos en el siguiente paso
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Carga el .env globalmente
+    ConfigModule.forRoot({ isGlobal: true }), 
     SupabaseModule,
     AuthModule,
   ],
