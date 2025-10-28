@@ -152,7 +152,7 @@ GET /progress/report/:patientId - Generar reporte de progreso como pongo esto pa
 
 ## 🧱 Estructura del Proyecto
 
-```
+```bash
 📦 Rehab-API
  ┣ 📂 src
  ┃ ┣ 📂 auth                 # Módulo de autenticación (JWT, roles)
@@ -168,7 +168,7 @@ GET /progress/report/:patientId - Generar reporte de progreso como pongo esto pa
  ┣ 📜 .env.example           # Ejemplo de variables de entorno
  ┣ 📜 package.json
  ┗ 📜 README.md
-
+```
 ---
 
 ## 🧠 Acerca del Proyecto
