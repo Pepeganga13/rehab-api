@@ -93,22 +93,81 @@ La API estará disponible en:
 
 ---
 
+## 📡 Endpoints Principales
+### 🔐 Autenticación
+
+```bash
+POST /auth/signin - Iniciar sesión
+
+POST /auth/signup - Registrarse
+
+POST /auth/signout - Cerrar sesión
+```
+
+### 💪 Ejercicios
+
+```bash
+GET /exercises - Obtener todos los ejercicios
+
+POST /exercises - Crear ejercicio (Profesional)
+
+GET /exercises/category/:category - Filtrar por categoría
+
+PATCH /exercises/:id - Actualizar ejercicio
+
+DELETE /exercises/:id - Eliminar ejercicio
+```
+
+### 📋 Rutinas
+
+```bash
+POST /routines - Crear rutina
+
+GET /routines - Obtener rutinas
+
+GET /routines/:id - Obtener rutina específica con ejercicios
+```
+
+### 🔗 Ejercicios de Rutina
+
+```bash
+POST /routine-exercises - Agregar ejercicio a rutina
+
+POST /routine-exercises/routine/:id/batch - Agregar múltiples ejercicios
+
+GET /routine-exercises/routine/:id - Obtener ejercicios de una rutina
+```
+
+### 📊 Progreso
+
+```bash
+POST /progress - Registrar progreso de ejercicio
+
+GET /progress/patient/:patientId - Obtener progreso del paciente
+
+GET /progress/report/:patientId - Generar reporte de progreso como pongo esto para que se vea bonito despues
+```
+
+
+
 ## 🧱 Estructura del Proyecto
 
 ```
 📦 Rehab-API
  ┣ 📂 src
- ┃ ┣ 📂 auth          # Módulo de autenticación (JWT, roles)
- ┃ ┣ 📂 profiles      # Gestión de perfiles de usuario
- ┃ ┣ 📂 exercises     # Biblioteca de ejercicios terapéuticos
- ┃ ┣ 📜 app.module.ts # Configuración principal de NestJS
- ┃ ┗ 📜 main.ts       # Punto de entrada de la aplicación
+ ┃ ┣ 📂 auth                 # Módulo de autenticación (JWT, roles)
+ ┃ ┣ 📂 database             # Configuración de Supabase
+ ┃ ┣ 📂 exercises            # Biblioteca de ejercicios terapéuticos
+ ┃ ┣ 📂 routines             # Gestión de rutinas
+ ┃ ┣ 📂 routine-exercises    # Relación rutina-ejercicios
+ ┃ ┣ 📂 progress             # Seguimiento del paciente
+ ┃ ┣ 📜 app.module.ts        # Configuración principal de NestJS
+ ┃ ┗ 📜 main.ts              # Punto de entrada de la aplicación
  ┣ 📂 scripts
- ┃ ┗ 📜 seed.ts       # Script de carga inicial de datos
- ┣ 📜 .env.example     # Ejemplo de variables de entorno
+ ┃ ┗ 📜 seed.ts              # Script de carga inicial de datos
+ ┣ 📜 .env.example           # Ejemplo de variables de entorno
  ┣ 📜 package.json
  ┗ 📜 README.md
-```
 
 ---
 
