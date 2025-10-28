@@ -1,39 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ExercisesService } from './exercises.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
+import { ExercisesService } from './exercises.service';
 
-@Controller('exercises') // La ruta base será /exercises
-@UsePipes(new ValidationPipe({ transform: true })) // Aplica validación a todos los endpoints
+@Controller('exercises')
+@UsePipes(new ValidationPipe({ transform: true }))
 export class ExercisesController {
   constructor(private readonly exercisesService: ExercisesService) {}
 
-  // POST /exercises
   @Post()
   create(@Body() createExerciseDto: CreateExerciseDto) {
-    // RF4: Solo Profesionales/Administradores deberían tener acceso a esta ruta (falta Guard)
-    return this.exercisesService.create(createExerciseDto);
+    const professionalId = 'a8e8c66c-2632-4bec-907a-aa7a32905843'; // Temporal - reemplazar con auth real
+    return this.exercisesService.create(createExerciseDto, professionalId);
   }
 
-  // GET /exercises - (RF4: Biblioteca)
   @Get()
   findAll() {
     return this.exercisesService.findAll();
   }
 
-  // GET /exercises/1
+  @Get('category/:category')
+  findByCategory(@Param('category') category: string) {
+    return this.exercisesService.findByCategory(category);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.exercisesService.findOne(id);
   }
 
-  // PATCH /exercises/1
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateExerciseDto: UpdateExerciseDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() updateExerciseDto: UpdateExerciseDto
+  ) {
     return this.exercisesService.update(id, updateExerciseDto);
   }
 
-  // DELETE /exercises/1
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.exercisesService.remove(id);

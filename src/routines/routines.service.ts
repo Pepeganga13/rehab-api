@@ -1,22 +1,21 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CreateRoutineDto } from './dto/create-routine.dto';
-import { UpdateRoutineDto } from './dto/update-routine.dto';
 
 @Injectable()
 export class RoutinesService {
   constructor(private readonly supabase: SupabaseClient) {}
 
-  // C: CREATE (Crear y Asignar Rutina) - RF3 y RF6
+  // En el método create, simplificamos ya que ahora RoutineExercises tiene su propio servicio
   async create(createRoutineDto: CreateRoutineDto, professionalId: string) {
     const { exercises, ...routineData } = createRoutineDto;
 
-    // 1. Insertar la rutina base en la tabla 'routines'
+    // 1. Insertar solo la rutina base
     const { data: routineResult, error: routineError } = await this.supabase
       .from('routines')
       .insert({
         ...routineData,
-        professional_id: professionalId, // ID del profesional obtenida del token
+        professional_id: professionalId,
       })
       .select('id')
       .single();
@@ -27,29 +26,13 @@ export class RoutinesService {
 
     const routineId = routineResult.id;
 
-    // 2. Preparar los datos para la tabla pivote 'routine_exercises'
-    const routineExercisesToInsert = exercises.map(ex => ({
-      ...ex,
-      routine_id: routineId,
-    }));
-
-    // 3. Insertar las relaciones en la tabla pivote
-    const { error: exercisesError } = await this.supabase
-      .from('routine_exercises')
-      .insert(routineExercisesToInsert);
-
-    if (exercisesError) {
-
-      throw new BadRequestException(`Error al asignar ejercicios a la rutina: ${exercisesError.message}`);
-    }
-
-    // 4. Leer la rutina completa (con ejercicios) para devolverla
-    return this.findOne(routineId); 
+    // 2. Retornar solo la rutina creada (sin ejercicios)
+    // Los ejercicios se agregarán mediante el servicio de RoutineExercises
+    return this.findOne(routineId);
   }
 
-  // (Obtener Rutina con sus Ejercicios)
+  // Modificar findOne para usar la nueva relación
   async findOne(id: number) {
-    // Consulta JOIN para obtener la rutina y sus ejercicios asociados
     const { data, error } = await this.supabase
       .from('routines')
       .select(`
@@ -59,26 +42,27 @@ export class RoutinesService {
         end_date,
         patient_id,
         professional_id,
-        exercises:routine_exercises (
-            repetitions,
-            duration_seconds,
-            notes,
-            exercise:exercises (id, name, category, body_part)
+        created_at,
+        routine_exercises (
+          id,
+          repetitions,
+          duration_seconds,
+          notes,
+          exercise:exercises (id, name, description, category, body_part, difficulty)
         )
       `)
       .eq('id', id)
       .single();
 
     if (error) {
-        if (error.code === 'PGRST116') {
-            throw new NotFoundException(`Rutina con ID ${id} no encontrada.`);
-        }
-        throw new BadRequestException(`Error al buscar rutina: ${error.message}`);
+      if (error.code === 'PGRST116') {
+        throw new NotFoundException(`Rutina con ID ${id} no encontrada.`);
+      }
+      throw new BadRequestException(`Error al buscar rutina: ${error.message}`);
     }
 
     return data;
   }
-  
   
   async findAll() {
 
