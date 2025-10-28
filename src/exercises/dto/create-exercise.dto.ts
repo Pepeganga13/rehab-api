@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
+import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateExerciseDto {
   @IsString()
@@ -11,7 +11,7 @@ export class CreateExerciseDto {
   @IsIn(['Movilidad', 'Fuerza', 'Equilibrio', 'Respiración', 'Resistencia'], {
     message: 'La categoría debe ser una de las clasificaciones válidas.',
   })
-  category: string; 
+  category: string;
 
   @IsString()
   @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
@@ -7,37 +7,34 @@ import { UpdateExerciseDto } from './dto/update-exercise.dto';
 export class ExercisesService {
   constructor(private readonly supabase: SupabaseClient) {}
 
-  // C: CREATE (Crear Ejercicio)
-  async create(createExerciseDto: CreateExerciseDto) {
-    // Aquí podrías obtener el ID del usuario logueado (Profesional) para asignarlo a professional_id.
+  async create(createExerciseDto: CreateExerciseDto, professionalId: string) {
     const { data, error } = await this.supabase
       .from('exercises')
-      .insert([createExerciseDto])
-      .select(); 
+      .insert({
+        ...createExerciseDto,
+        created_by: professionalId
+      })
+      .select()
+      .single();
 
     if (error) {
-      throw new BadRequestException(`Error al crear el ejercicio: ${error.message}`);
+      throw new Error(`Error al crear ejercicio: ${error.message}`);
     }
-    
-    return data[0];
-  }
-
-  // R: READ ALL (Obtener toda la biblioteca) - RF4
-  async findAll() {
-    // Retorna todos los ejercicios, ordenados por categoría (RF5)
-    const { data, error } = await this.supabase
-      .from('exercises')
-      .select('*')
-      .order('category', { ascending: true }); 
-
-    if (error) {
-      throw new BadRequestException(`Error al obtener ejercicios: ${error.message}`);
-    }
-
     return data;
   }
 
-  // R: READ ONE (Obtener un ejercicio por ID)
+  async findAll() {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .select('*')
+      .order('name');
+    
+    if (error) {
+      throw new Error(`Error al obtener ejercicios: ${error.message}`);
+    }
+    return data;
+  }
+
   async findOne(id: number) {
     const { data, error } = await this.supabase
       .from('exercises')
@@ -46,45 +43,54 @@ export class ExercisesService {
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') { 
-        throw new NotFoundException(`Ejercicio con ID ${id} no encontrado.`);
-      }
-      throw new BadRequestException(`Error al buscar ejercicio: ${error.message}`);
+      throw new NotFoundException(`Ejercicio con ID ${id} no encontrado`);
     }
-
     return data;
   }
 
-  // U: UPDATE (Actualizar Ejercicio)
   async update(id: number, updateExerciseDto: UpdateExerciseDto) {
+    // Verificar si existe primero
+    await this.findOne(id);
+
     const { data, error } = await this.supabase
       .from('exercises')
       .update(updateExerciseDto)
       .eq('id', id)
-      .select();
+      .select()
+      .single();
 
     if (error) {
-      throw new BadRequestException(`Error al actualizar el ejercicio: ${error.message}`);
+      throw new Error(`Error al actualizar ejercicio: ${error.message}`);
     }
-    
-    if (data.length === 0) {
-      throw new NotFoundException(`Ejercicio con ID ${id} no encontrado para actualizar.`);
-    }
-
-    return data[0];
+    return data;
   }
 
-  // D: DELETE (Eliminar Ejercicio)
   async remove(id: number) {
+    // Verificar si existe primero
+    await this.findOne(id);
+
     const { error } = await this.supabase
       .from('exercises')
       .delete()
       .eq('id', id);
 
     if (error) {
-      throw new BadRequestException(`Error al eliminar el ejercicio: ${error.message}`);
+      throw new Error(`Error al eliminar ejercicio: ${error.message}`);
     }
+    return { message: 'Ejercicio eliminado correctamente' };
+  }
 
-    return { message: `Ejercicio con ID ${id} eliminado exitosamente.` };
+  // Nuevo método para buscar por categoría (RF3)
+  async findByCategory(category: string) {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .select('*')
+      .eq('category', category)
+      .order('name');
+
+    if (error) {
+      throw new Error(`Error al buscar ejercicios por categoría: ${error.message}`);
+    }
+    return data;
   }
 }
