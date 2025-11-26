@@ -93,6 +93,71 @@ La API estará disponible en:
 
 ---
 
+### 6. 🛡️ Sección Crucial: Pruebas de Seguridad (Requisito Principal)
+
+Esta es la sección más importante que debes añadir para demostrar la funcionalidad de tus *Guards* y *Roles*.
+
+Añade esto después de la sección "Endpoints Principales":
+
+```markdown
+---
+
+## 🛡️ Paso a Paso: Pruebas de Seguridad (Ruta /exercises)
+
+Para verificar la protección de rutas (`@UseGuards(UserRoleGuard)`), sigue estos pasos utilizando Postman o similar.
+
+### A. 🔑 Obtener Tokens de Acceso
+
+1.  **Obtener Token Profesional (Acceso Permitido):**
+    * **Endpoint:** `POST /auth/signin`
+    * **Body (JSON):** `{"email": "profesional@rehab.cl", "password": "Password123"}`
+    * **Resultado:** Guardar el `access_token` de la respuesta.
+2.  **Obtener Token Paciente (Acceso Restringido):**
+    * **Endpoint:** `POST /auth/signin`
+    * **Body (JSON):** `{"email": "paciente@rehab.cl", "password": "Password123"}`
+    * **Resultado:** Guardar el `access_token` de la respuesta.
+
+### B. ✅ Prueba de Éxito (Profesional)
+
+* **Objetivo:** Crear un nuevo ejercicio.
+* **Método:** `POST /exercises`
+* **Headers:** `Authorization: Bearer [TOKEN_PROFESIONAL]`
+* **Body (JSON):**
+    ```json
+    {
+        "name": "Extension de Rodilla",
+        "description": "Estiramiento isométrico de cuádriceps.",
+        "category": "Fuerza",
+        "body_part": "Pierna"
+    }
+    ```
+* **Resultado Esperado:** **`201 Created`**
+
+### C. ❌ Prueba de Fallo (Paciente)
+
+* **Objetivo:** Intentar crear un ejercicio con un rol no autorizado.
+* **Método:** `POST /exercises`
+* **Headers:** `Authorization: Bearer [TOKEN_PACIENTE]`
+* **Body (JSON):** (El mismo que en la prueba de éxito)
+* **Resultado Esperado:** **`403 Forbidden`** (Acceso denegado por `UserRoleGuard`)
+
+### D. 💡 Otras Pruebas de Roles
+
+Las rutas `PATCH /exercises/:id` y `DELETE /exercises/:id` tienen la misma protección de rol, por lo que el Profesional obtendrá `200 OK` y el Paciente obtendrá `403 Forbidden`.
+
+---
+
+## 🔒 Roles y Permisos
+
+El sistema utiliza tres roles definidos para gestionar el acceso a los recursos. Las pruebas de seguridad se basan en estas clasificaciones:
+
+| Rol | Email de Prueba | Acceso a CREATE/UPDATE/DELETE |
+| :--- | :--- | :--- |
+| **Administrador** | `admin@rehab.cl` | Completo |
+| **Profesional de la salud** | `profesional@rehab.cl` | Completo |
+| **Paciente** | `paciente@rehab.cl` | Solo Lectura (`GET`) |
+
+---
 ## 📡 Endpoints Principales
 ### 🔐 Autenticación
 

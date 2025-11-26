@@ -12,7 +12,7 @@ export class ExercisesService {
       .from('exercises')
       .insert({
         ...createExerciseDto,
-        created_by: professionalId
+        professional_id: professionalId
       })
       .select()
       .single();

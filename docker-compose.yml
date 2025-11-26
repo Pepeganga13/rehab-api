@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14 
+    restart: always 
+    container_name: fisio_db
+    environment:
+      POSTGRES_USER: ${SUPABASE_DB_USER}
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD}
+      POSTGRES_DB: ${SUPABASE_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: . 
+      dockerfile: Dockerfile
+    container_name: fisio_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://${SUPABASE_DB_USER}:${SUPABASE_DB_PASSWORD}@db:5432/${SUPABASE_DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+    command: npm run start:prod 
+    restart: always
+
+volumes:
+  postgres_data:

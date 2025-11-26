@@ -1,13 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CreateProgressDto } from './dto/create-progress.dto';
+import { UserRole } from '../auth/roles/user-role.enum';
 
 @Injectable()
 export class ProgressService {
   constructor(private readonly supabase: SupabaseClient) {}
 
+
   async create(createProgressDto: CreateProgressDto, patientId: string) {
-    // Verificar que el routine_exercise_id existe y pertenece al paciente
     const { data: routineExercise, error: reError } = await this.supabase
       .from('routine_exercises')
       .select(`
@@ -24,10 +25,10 @@ export class ProgressService {
       throw new NotFoundException('Ejercicio de rutina no encontrado');
     }
 
-    // Verificar que la rutina pertenece al paciente
     const routine = Array.isArray(routineExercise.routine)
       ? routineExercise.routine[0]
       : routineExercise.routine;
+      
     if (!routine || routine.patient_id !== patientId) {
       throw new NotFoundException('No tienes permiso para registrar progreso en este ejercicio');
     }
@@ -51,12 +52,20 @@ export class ProgressService {
       .single();
 
     if (error) {
-      throw new Error(`Error al registrar progreso: ${error.message}`);
+      throw new BadRequestException(`Error al registrar progreso: ${error.message}`);
     }
     return data;
   }
 
-  async findByPatient(patientId: string) {
+  async findByPatient(
+    requestedPatientId: string, 
+    currentUserId: string, 
+    currentUserRole: UserRole 
+  ) {
+    if (currentUserRole === UserRole.Patient && currentUserId !== requestedPatientId) {
+        throw new NotFoundException(`Acceso denegado. No tienes permiso para ver este progreso.`);
+    }
+
     const { data, error } = await this.supabase
       .from('progress')
       .select(`
@@ -69,20 +78,30 @@ export class ProgressService {
         routine_exercise:routine_exercises (
           repetitions,
           duration_seconds,
+          notes,
           exercise:exercises (name, category, body_part),
           routine:routines (name, patient_id)
         )
       `)
-      .eq('patient_id', patientId)
+      .eq('patient_id', requestedPatientId) 
       .order('completed_at', { ascending: false });
 
     if (error) {
-      throw new Error(`Error al obtener progreso: ${error.message}`);
+      throw new BadRequestException(`Error al obtener progreso: ${error.message}`);
     }
     return data;
   }
 
-  async findByRoutine(routineId: number, patientId: string) {
+  async findByRoutine(
+    routineId: number, 
+    requestedPatientId: string, 
+    currentUserId: string, 
+    currentUserRole: UserRole 
+  ) {
+    if (currentUserRole === UserRole.Patient && currentUserId !== requestedPatientId) {
+        throw new NotFoundException(`Acceso denegado. No tienes permiso para ver este progreso.`);
+    }
+
     const { data, error } = await this.supabase
       .from('progress')
       .select(`
@@ -95,21 +114,21 @@ export class ProgressService {
         routine_exercise:routine_exercises (
           repetitions,
           duration_seconds,
+          notes,
           exercise:exercises (name, category),
           routine:routines (name)
         )
       `)
-      .eq('patient_id', patientId)
+      .eq('patient_id', requestedPatientId) // Usamos el ID solicitado
       .eq('routine_exercises.routine_id', routineId)
       .order('completed_at', { ascending: false });
 
     if (error) {
-      throw new Error(`Error al obtener progreso por rutina: ${error.message}`);
+      throw new BadRequestException(`Error al obtener progreso por rutina: ${error.message}`);
     }
     return data;
   }
 
-  // Para reportes del profesional (RF8)
   async getPatientProgressReport(patientId: string) {
     const { data, error } = await this.supabase
       .from('progress')
@@ -126,10 +145,10 @@ export class ProgressService {
       .order('completed_at', { ascending: true });
 
     if (error) {
-      throw new Error(`Error al generar reporte: ${error.message}`);
+      throw new BadRequestException(`Error al generar reporte: ${error.message}`);
     }
 
-    // Calcular métricas básicas
+    // Cálculo de métricas
     const totalExercises = data.length;
     const completedExercises = data.filter(p => p.completed).length;
     const completionRate = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
