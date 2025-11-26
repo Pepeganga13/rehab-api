@@ -1,5 +1,7 @@
+// src/supabase/supabase.module.ts (Código Modificado)
+
 import { Module, Global } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 @Global()
@@ -8,9 +10,13 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
   providers: [
     {
       provide: SupabaseClient,
-      useFactory: (configService: ConfigService): SupabaseClient => {
-        const supabaseUrl = configService.get<string>('SUPABASE_URL');
-        const supabaseKey = configService.get<string>('SUPABASE_ANON_KEY'); // Usamos la ANON Key para el cliente
+      useFactory: (): SupabaseClient => {
+        // 🚨 CAMBIO A LECTURA DIRECTA DE process.env
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_KEY; 
+        
+        console.log('DEBUG SUPABASE URL:', supabaseUrl ? 'FOUND' : 'NOT FOUND');
+        console.log('DEBUG SUPABASE KEY:', supabaseKey ? 'FOUND' : 'NOT FOUND');
 
         if (!supabaseUrl || !supabaseKey) {
           throw new Error('Supabase URL or Key not found in environment variables.');
@@ -18,7 +24,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
         return createClient(supabaseUrl, supabaseKey);
       },
-      inject: [ConfigService],
+      // Ya no necesitamos inyectar ConfigService si usamos process.env directamente
+      // Puedes eliminar la línea: inject: [ConfigService],
     },
   ],
   exports: [SupabaseClient],

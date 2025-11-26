@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config'; 
+import * as path from 'path'; // Necesario para la manipulación de rutas
+
+// Módulos de la aplicación
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { ExercisesModule } from './exercises/exercises.module';
@@ -12,7 +15,14 @@ import { RoutineExercisesModule } from './routine-exercises/routine-exercises.mo
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), 
+    // 🚨 ÚLTIMA CORRECCIÓN: Usar process.cwd() para determinar la raíz
+    ConfigModule.forRoot({
+      isGlobal: true,
+      // path.join(process.cwd(), '.env') siempre apunta a: /rehab-api/.env
+      envFilePath: path.join(process.cwd(), '.env'), 
+    }), 
+    
+    // Módulos de la aplicación
     SupabaseModule,
     AuthModule,
     ExercisesModule,
@@ -24,5 +34,3 @@ import { RoutineExercisesModule } from './routine-exercises/routine-exercises.mo
   providers: [AppService],
 })
 export class AppModule {}
-
-

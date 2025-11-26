@@ -1,0 +1,30 @@
+# ETAPA 1: Construcción (Build Stage)
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Copiar archivos de configuración de dependencias
+COPY package*.json ./
+RUN npm install
+
+# Copiar todo el código fuente
+COPY . .
+
+# Compilar la aplicación TypeScript a JavaScript (produce la carpeta 'dist')
+RUN npm run build
+
+
+# ETAPA 2: Producción (Runtime Stage)
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3000
+
+# Comando para ejecutar la aplicación compilada
+CMD ["node", "dist/main"]
