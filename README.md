@@ -230,9 +230,12 @@ GET /progress/report/:patientId - Generar reporte de progreso como pongo esto pa
  ┃ ┗ 📜 main.ts              # Punto de entrada de la aplicación
  ┣ 📂 scripts
  ┃ ┗ 📜 seed.ts              # Script de carga inicial de datos
+ ┣ 📜 docker-compose.yml
+ ┣ 📜 Dockerfile
  ┣ 📜 .env.example           # Ejemplo de variables de entorno
  ┣ 📜 package.json
  ┗ 📜 README.md
+ 
 ```
 ---
 

@@ -1,0 +1,13 @@
+# .dockerignore
+
+# Ignorar la carpeta de módulos local para no transferirla al build context.
+# Se instalarán dentro del contenedor con 'npm install'.
+node_modules
+
+# Ignorar las carpetas de compilación local
+dist
+
+# Archivos de caché o temporales
+npm-debug.log
+.DS_Store
+*.swp

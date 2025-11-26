@@ -23,9 +23,16 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    
+    # 🚨 SOLUCIÓN: Cargar TODAS las variables del archivo .env
+    env_file:
+      - .env
+
     environment:
       NODE_ENV: production
       PORT: 3000
+      # Estas variables ahora también se cargan de .env, pero las dejamos
+      # para asegurar que Docker Compose las interpola correctamente en DATABASE_URL.
       DATABASE_URL: postgres://${SUPABASE_DB_USER}:${SUPABASE_DB_PASSWORD}@db:5432/${SUPABASE_DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
     command: npm run start:prod 
