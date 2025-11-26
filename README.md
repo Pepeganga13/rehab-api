@@ -25,9 +25,9 @@ Sigue los siguientes pasos para instalar, configurar y ejecutar la API localment
 
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-- **Node.js** (v18 o superior)  
-- **npm** o **yarn**  
-- Un proyecto de **Supabase** configurado (con las tablas `profiles` y autenticación habilitada)
+- Node.js(v18 o superior)  
+- npmo yarn 
+- Un proyecto de Supabaseconfigurado (con las tablas `profiles` y autenticación habilitada)
 
 ---
 
@@ -47,17 +47,18 @@ npm install -g ts-node
 
 ### 🔑 3. Configuración de Variables de Entorno
 
-Crea un archivo llamado `.env` en la raíz del proyecto y agrega tus credenciales de Supabase:
+Crea un archivo llamado `.env` en la raíz del proyecto y agrega tus credenciales de Supabase 
+o copiar todo el contenido de `.env.example` en el nuevo archivo `.env`:
 
 ```bash
 # .env
-SUPABASE_URL=**************
-SUPABASE_ANON_KEY=**************
-SUPABASE_SERVICE_KEY=**************   # Clave de administrador (Service Role Key)
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_KEY=  # Clave de administrador (Service Role Key)
 ```
 
-> 💡 **Nota:** La `SUPABASE_SERVICE_KEY` se utiliza exclusivamente para ejecutar el script de *seed* (carga inicial de datos).  
-> Asegúrate de mantenerla privada y **no** subirla a ningún repositorio público.
+> 💡 Nota:La `SUPABASE_SERVICE_KEY` se utiliza exclusivamente para ejecutar el script de *seed* (carga inicial de datos).  
+> Asegúrate de mantenerla privada y nosubirla a ningún repositorio público.
 
 ---
 
@@ -65,12 +66,12 @@ SUPABASE_SERVICE_KEY=**************   # Clave de administrador (Service Role Key
 
 El script `scripts/seed.ts` se encarga de poblar la base de datos con datos de prueba, incluyendo tres usuarios con diferentes roles:
 
-- **Administrador:** `admin@rehab.cl`  
-- **Profesional:** `profesional@rehab.cl`  
-- **Paciente:** `paciente@rehab.cl`  
-- **Contraseña (para todos):** `Password123`
+- Administrador:`admin@rehab.cl`  
+- Profesional:`profesional@rehab.cl`  
+- Paciente:`paciente@rehab.cl`  
+- Contraseña (para todos):`Password123`
 
-> ⚠️ Estos usuarios ya pueden existir en la base de datos. Se recomienda ejecutar este script en una base de datos **propia o de desarrollo**.
+> ⚠️ Estos usuarios ya pueden existir en la base de datos. Se recomienda ejecutar este script en una base de datos propia o de desarrollo.
 
 Ejecuta el siguiente comando:
 
@@ -89,7 +90,7 @@ npm run start:dev
 ```
 
 La API estará disponible en:  
-👉 **http://localhost:3000**
+👉 http://localhost:3000
 
 ---
 
@@ -108,21 +109,21 @@ Para verificar la protección de rutas (`@UseGuards(UserRoleGuard)`), sigue esto
 
 ### A. 🔑 Obtener Tokens de Acceso
 
-1.  **Obtener Token Profesional (Acceso Permitido):**
-    * **Endpoint:** `POST /auth/signin`
-    * **Body (JSON):** `{"email": "profesional@rehab.cl", "password": "Password123"}`
-    * **Resultado:** Guardar el `access_token` de la respuesta.
-2.  **Obtener Token Paciente (Acceso Restringido):**
-    * **Endpoint:** `POST /auth/signin`
-    * **Body (JSON):** `{"email": "paciente@rehab.cl", "password": "Password123"}`
-    * **Resultado:** Guardar el `access_token` de la respuesta.
+1.  Obtener Token Profesional (Acceso Permitido):
+     Endpoint: `POST /auth/signin`
+     Body (JSON): `{"email": "profesional@rehab.cl", "password": "Password123"}`
+     Resultado: Guardar el `access_token` de la respuesta.
+2.  Obtener Token Paciente (Acceso Restringido):
+     Endpoint: `POST /auth/signin`
+     Body (JSON): `{"email": "paciente@rehab.cl", "password": "Password123"}`
+     Resultado: Guardar el `access_token` de la respuesta.
 
 ### B. ✅ Prueba de Éxito (Profesional)
 
-* **Objetivo:** Crear un nuevo ejercicio.
-* **Método:** `POST /exercises`
-* **Headers:** `Authorization: Bearer [TOKEN_PROFESIONAL]`
-* **Body (JSON):**
+ Objetivo:Crear un nuevo ejercicio.
+ Método:`POST /exercises`
+ Headers:`Authorization: Bearer [TOKEN_PROFESIONAL]`
+ Body (JSON):
     ```json
     {
         "name": "Extension de Rodilla",
@@ -131,15 +132,15 @@ Para verificar la protección de rutas (`@UseGuards(UserRoleGuard)`), sigue esto
         "body_part": "Pierna"
     }
     ```
-* **Resultado Esperado:** **`201 Created`**
+ Resultado Esperado:`201 Created`
 
 ### C. ❌ Prueba de Fallo (Paciente)
 
-* **Objetivo:** Intentar crear un ejercicio con un rol no autorizado.
-* **Método:** `POST /exercises`
-* **Headers:** `Authorization: Bearer [TOKEN_PACIENTE]`
-* **Body (JSON):** (El mismo que en la prueba de éxito)
-* **Resultado Esperado:** **`403 Forbidden`** (Acceso denegado por `UserRoleGuard`)
+ Objetivo:Intentar crear un ejercicio con un rol no autorizado.
+ Método:`POST /exercises`
+ Headers:`Authorization: Bearer [TOKEN_PACIENTE]`
+ Body (JSON):(El mismo que en la prueba de éxito)
+ Resultado Esperado:`403 Forbidden`(Acceso denegado por `UserRoleGuard`)
 
 ### D. 💡 Otras Pruebas de Roles
 
@@ -153,9 +154,9 @@ El sistema utiliza tres roles definidos para gestionar el acceso a los recursos.
 
 | Rol | Email de Prueba | Acceso a CREATE/UPDATE/DELETE |
 | :--- | :--- | :--- |
-| **Administrador** | `admin@rehab.cl` | Completo |
-| **Profesional de la salud** | `profesional@rehab.cl` | Completo |
-| **Paciente** | `paciente@rehab.cl` | Solo Lectura (`GET`) |
+| Administrador | `admin@rehab.cl` | Completo |
+| Profesional de la salud | `profesional@rehab.cl` | Completo |
+| Paciente | `paciente@rehab.cl` | Solo Lectura (`GET`) |
 
 ---
 ## 📡 Endpoints Principales
@@ -241,19 +242,19 @@ GET /progress/report/:patientId - Generar reporte de progreso como pongo esto pa
 
 ## 🧠 Acerca del Proyecto
 
-**Rehab-API** es el backend del sistema web “Rehabilitación y Seguimiento Terapéutico en Casa”.  
+Rehab-APIes el backend del sistema web “Rehabilitación y Seguimiento Terapéutico en Casa”.  
 Permite a los pacientes realizar ejercicios terapéuticos guiados por profesionales, quienes pueden monitorear su progreso mediante la plataforma.
 
-El proyecto fue desarrollado como parte del curso **“Taller de Desarrollo de Backend con NestJS”** de la **Universidad del Bío-Bío**.
+El proyecto fue desarrollado como parte del curso “Taller de Desarrollo de Backend con NestJS”de la Universidad del Bío-Bío.
 
 ---
 
 ## 👨‍💻 Equipo de Desarrollo
 
-- **Sebastián Pedreros Mujica**  
-- **Patricio Moncada Norambuena**  
-- **Luciano Sandoval Jara**  
-- **Bastián Rosales Campusano**
+- Sebastián Pedreros Mujica 
+- Patricio Moncada Norambuena 
+- Luciano Sandoval Jara 
+- Bastián Rosales Campusano
 
 ---
 
